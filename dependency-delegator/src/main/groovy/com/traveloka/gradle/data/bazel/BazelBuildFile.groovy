@@ -1,9 +1,11 @@
 package com.traveloka.gradle.data.bazel
+
+import java.util.regex.Matcher
+
 /**
  * Created by salvian on 04/08/16.
  */
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.regex.Pattern
 
 //TODO use real parser
 public class BazelBuildFile {
@@ -16,7 +18,7 @@ public class BazelBuildFile {
         }
     }
 
-    private static List<BazelJavaLibrary> loadJavaLibries(File buildFile){
+    private static List<BazelJavaLibrary> loadJavaLibries(File buildFile) {
         List<BazelJavaLibrary> javaLibraries = new ArrayList<>();
         List<String> javaLib = new ArrayList<>()
         Stack<Character> brace = new Stack<>()
@@ -25,24 +27,24 @@ public class BazelBuildFile {
 
         String __temp = ""
         // Get the Java_library
-        buildFile.eachLine{
+        buildFile.eachLine {
             line = "$it".trim()
 
-            if(line.startsWith("java_library")){
+            if (line.startsWith("java_library")) {
                 isJavaLib = true
             }
-            
-            if(isJavaLib){
+
+            if (isJavaLib) {
                 int len = line.length()
-                for(int i=0;i<len;i++){
+                for (int i = 0; i < len; i++) {
                     char ch = line.charAt(i)
                     __temp += ch
-                    if(ch == '('){
+                    if (ch == '(') {
                         brace.push(ch)
-                    }else if(ch == ')'){
+                    } else if (ch == ')') {
                         brace.pop()
 
-                        if(brace.isEmpty()){
+                        if (brace.isEmpty()) {
                             javaLib.add(__temp)
                             __temp = ""
                             isJavaLib = false
@@ -50,42 +52,42 @@ public class BazelBuildFile {
                         }
                     }
                 }
-            } 
+            }
         }
-        
-        for(String lib: javaLib){
+        for (String lib : javaLib) {
             String lib_name
-            Pattern pattern = Pattern.compile("name = \"(.*?)\"")
+            lib = lib.replaceAll("#[^\n]+","")
+            Pattern pattern = Pattern.compile("\\bname = \"([^\"]+)\\\"")
+
             Matcher matcher = pattern.matcher(lib)
-            if(matcher.find()){
+            if (matcher.find()) {
                 lib_name = matcher.group(1)
                 BazelJavaLibrary bazelJavaLibrary = new BazelJavaLibrary(lib_name)
 
                 // Get 'deps'
-                pattern = Pattern.compile("deps = \\[(.*?)\\]")
+                pattern = Pattern.compile("\\bdeps = \\[([^]]+)\\]",Pattern.MULTILINE)
                 matcher = pattern.matcher(lib)
-
-                if(matcher.find()){
-                    String[] listDeps = matcher.group(1).split(",")
-
-                    for(String depsName : listDeps){
-                        if(!depsName.startsWith("#")){
-                            depsName = depsName.substring(depsName.indexOf("\"")+1, depsName.lastIndexOf("\""))
+                String depString
+                if (matcher.find() && (depString = matcher.group(1).trim()).length() > 0) {
+                    String[] listDeps = depString.split(',')
+                    for (String depsName : listDeps) {
+                        if (depsName.length()>0) {
+                            depsName = depsName.substring(depsName.indexOf("\"") + 1, depsName.lastIndexOf("\""))
                             bazelJavaLibrary.deps.add(depsName)
                         }
                     }
                 }
 
                 // Get the 'runtime_deps'
-                pattern = Pattern.compile("runtime_deps = \\[(.*?)\\]")
+                pattern = Pattern.compile("\\bruntime_deps = \\[([^]]+)\\]",Pattern.MULTILINE)
                 matcher = pattern.matcher(lib)
 
-                if(matcher.find()){
+                if (matcher.find()) {
                     String[] listDeps = matcher.group(1).split(",")
 
-                    for(String runtimeDepsName : listDeps){
-                        if(!runtimeDepsName.startsWith("#")){
-                            runtimeDepsName = runtimeDepsName.substring(runtimeDepsName.indexOf("\"")+1, runtimeDepsName.lastIndexOf("\""))
+                    for (String runtimeDepsName : listDeps) {
+                        if (!runtimeDepsName.startsWith("#")) {
+                            runtimeDepsName = runtimeDepsName.substring(runtimeDepsName.indexOf("\"") + 1, runtimeDepsName.lastIndexOf("\""))
                             bazelJavaLibrary.runtimeDeps.add(runtimeDepsName)
                         }
                     }

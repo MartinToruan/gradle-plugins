@@ -17,7 +17,7 @@ public class BazelConverter implements DependencyConverter {
             if (bazelJavaLibrary.name == "jar") {
                 convertCompileDeps(bazelJavaLibrary.deps)
                 convertRuntimeDeps(bazelJavaLibrary.runtimeDeps)
-            } else if (bazelJavaLibrary.name == "testJar") {
+            } else if (bazelJavaLibrary.name == "testJar") {\
                 convertTestCompileDeps(bazelJavaLibrary.deps)
                 convertTestRuntimeDeps(bazelJavaLibrary.runtimeDeps)
             }
@@ -49,9 +49,7 @@ public class BazelConverter implements DependencyConverter {
             if (!dependency.startsWith(':')) {
                 def isProject = false
                 if (dependency.startsWith('@')) {
-                    dependency = dependency.substring(dependency.indexOf('@') + 1, dependency.indexOf("//"));
-                } else if (dependency.startsWith("//:")) {
-                    dependency = dependency.substring(dependency.indexOf(':') + 1);
+                    dependency = dependency.substring(dependency.indexOf('@') + 1, dependency.indexOf("//jar"));
                 } else {
                     isProject = true
                     dependency = dependency.substring(2, dependency.length() - 4);
