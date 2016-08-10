@@ -1,0 +1,21 @@
+allprojects{
+    apply plugin: 'maven-publish'
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                groupId 'com.traveloka.gradle'
+                from components.java
+            }
+        }
+        repositories {
+            maven {
+                url "${artifactory_contextUrl}/libs-release-local"
+                artifactUrls "http://repo1.maven.org/maven2/"
+                credentials {
+                    username = "${artifactory_user}"
+                    password = "${artifactory_password}"
+                }
+            }
+        }
+    }
+}

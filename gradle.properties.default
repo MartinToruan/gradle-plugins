@@ -1,0 +1,4 @@
+#artifactory configuration
+artifactory_user=[artifactory_user_name]
+artifactory_password=[artifactory_user_password_or_token]
+artifactory_contextUrl=[artifactory_url]
