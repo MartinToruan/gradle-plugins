@@ -1,7 +1,7 @@
 apply plugin: 'groovy'
 
 group "com.traveloka.gradle"
-version "0.6.1"
+version "0.6.2"
 
 dependencies {
     compile gradleApi()
