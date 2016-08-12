@@ -50,6 +50,8 @@ public class BazelConverter implements DependencyConverter {
                 def isProject = false
                 if (dependency.startsWith('@')) {
                     dependency = dependency.substring(dependency.indexOf('@') + 1, dependency.indexOf("//jar"));
+                } else if(dependency.startsWith("//:")){
+                    dependency = dependency.substring(dependency.indexOf(':') + 1);
                 } else {
                     isProject = true
                     dependency = dependency.substring(2, dependency.length() - 4);
